@@ -17,6 +17,27 @@ Implemented:
 - classifier training skeleton
 - initial architecture and decision docs
 
+## Day 2 Status
+
+Implemented:
+- DistilBERT fine-tuning script for issue classification
+- test-set evaluation script with accuracy, macro-F1, per-class F1, and confusion matrix
+- threshold-gated classification eval entry point
+- model server classifier inference path using `artifacts/classifier/` when available
+- controlled `/classify` 503 response when the trained model is missing
+- practical rule-based `/ner`
+- simple extractive `/summarize`
+- main API model server client
+- classifier, NER, and summarizer tool wrappers
+- service-level chat action proof for `classify`
+
+Still not implemented:
+- full chatbot orchestration
+- RAG
+- memory
+- Streamlit UI
+- React widget behavior
+
 ## Quickstart
 
 ```bash
@@ -35,3 +56,25 @@ make fetch-issues OWNER=owner REPO=repo
 make build-dataset
 make train-classifier
 ```
+
+Evaluate classifier:
+
+```bash
+make eval-classifier
+```
+
+Run the model server locally:
+
+```bash
+make model-server
+```
+
+Example classify request:
+
+```bash
+curl -X POST http://localhost:8001/classify \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Login fails in production","body":"JWT token is invalid after deploy"}'
+```
+
+Before training, `/classify` returns a controlled `503` explaining that the classifier artifact is missing.

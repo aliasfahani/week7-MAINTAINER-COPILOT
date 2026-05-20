@@ -1,4 +1,4 @@
-.PHONY: up down logs migrate seed-vault fetch-issues build-dataset train-classifier test
+.PHONY: up down logs migrate seed-vault fetch-issues build-dataset train-classifier eval-classifier model-server test-model-server test
 
 OWNER ?= psf
 REPO ?= requests
@@ -27,6 +27,15 @@ build-dataset:
 
 train-classifier:
 	$(PYTHON) scripts/train_classifier.py
+
+eval-classifier:
+	$(PYTHON) scripts/evaluate_classifier.py
+
+model-server:
+	uvicorn model_server.main:app --host 0.0.0.0 --port 8001
+
+test-model-server:
+	$(PYTHON) -m pytest tests/test_model_server.py
 
 test:
 	$(PYTHON) -m pytest

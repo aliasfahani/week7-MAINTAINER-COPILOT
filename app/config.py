@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     minio_endpoint: str = "minio:9000"
     minio_bucket: str = "maintainers-copilot"
 
+    model_server_url: str = "http://model_server:8001"
+    model_client_timeout_seconds: float = 10.0
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     @property
