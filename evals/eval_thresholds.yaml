@@ -1,0 +1,5 @@
+classification:
+  macro_f1_min: 0.0
+rag:
+  hit_at_5_min: 0.0
+  mrr_at_10_min: 0.0
