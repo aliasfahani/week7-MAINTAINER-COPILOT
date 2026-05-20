@@ -123,3 +123,52 @@ Run RAG eval:
 ```bash
 make eval-rag
 ```
+
+## Day 4 Status
+
+Implemented:
+- JWT auth with user/admin roles
+- `/auth/register`, `/auth/login`, `/auth/me`
+- authenticated `/chat`
+- single tool-calling design with local fallback planner
+- Redis short-term memory with TTL and local fallback
+- Postgres semantic memory tables and audit logs
+- `/memory` endpoints
+- widget config API and `/widget.js` loader
+- simple Streamlit login/chat/memory/widget admin app
+- simple React embeddable widget and demo host page
+
+Run admin seed:
+
+```bash
+make seed-admin
+```
+
+Run Streamlit:
+
+```bash
+make streamlit
+```
+
+Run widget dev server:
+
+```bash
+make widget-dev
+```
+
+Run host demo:
+
+```bash
+make host
+```
+
+Chat endpoint example:
+
+```bash
+curl -X POST http://localhost:8000/chat \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Classify this issue and search similar resolved issues","issue":{"title":"JWT fails","body":"Invalid token after deploy"}}'
+```
+
+Current limitation: the React widget UI can load config and send a request, but authenticated chat requires a JWT. A public widget chat proxy is a recommended Day 5 polish item.

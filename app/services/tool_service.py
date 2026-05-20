@@ -1,6 +1,8 @@
 from typing import Any
 
 from app.infra.model_client import ModelServerClient, get_model_client
+from app.infra.redaction import redact_text
+from app.services.memory_service import write_long_term_memory
 from app.services.rag_service import search_hybrid
 
 
@@ -43,3 +45,10 @@ def rag_search_tool(
     """
 
     return search_hybrid(query=query, top_k=top_k, filters=filters, save_snapshot=True)
+
+
+def write_memory_tool(user_id: int, text: str, metadata: dict[str, Any] | None = None, db=None) -> dict[str, Any]:
+    if db is None:
+        return {"ok": False, "error": "database session is required for memory writes"}
+    row = write_long_term_memory(db, user_id=user_id, text=redact_text(text), metadata=metadata or {})
+    return {"ok": True, "memory_id": row.id, "text": row.text}

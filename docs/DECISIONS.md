@@ -35,3 +35,16 @@
 - Reranking strategy: simple heuristic boost for exact query-term matches and title matches. This is intentionally explainable and can be replaced with a cross-encoder later.
 - Retrieved chunk snapshots: Day 3 saves local JSON snapshots under `artifacts/rag-snapshots/`; MinIO upload is still TODO.
 - Known limitation: full query rewriting is prompt-only for now, not wired to an LLM call.
+
+## Day 4
+
+- Auth choice: JWT bearer tokens with PBKDF2 password hashing. The JWT signing key is read from Vault when available, with a local development fallback for tests.
+- Roles: `user` and `admin`. Admin-only widget configuration uses the `require_admin` dependency.
+- Chatbot design: one tool-calling LLM architecture. Day 4 includes a documented deterministic fallback planner for local demos when no LLM API key is available.
+- Tool failure behavior: failed tools return structured errors and do not crash the whole chat response.
+- Redis TTL: short-term conversation memory uses a 24-hour TTL (`86400` seconds), which is long enough for a workday but avoids stale temporary context.
+- Semantic memory: long-term memory stores redacted text and embeddings in Postgres. Memory writes are explicit through `write_memory`.
+- Audit logs: every long-term memory write creates an `audit_logs` row.
+- Widget config: stored in Postgres with `allowed_origins`, theme, greeting, and enabled tools.
+- Origin checks: public widget config checks `Origin` or `Referer`. This is a simple allowlist and should be hardened later with deployment-specific CORS/CSP.
+- Widget loader: FastAPI serves `/widget.js`, which injects an iframe pointing to the React widget dev URL.

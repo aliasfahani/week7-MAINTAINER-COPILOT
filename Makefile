@@ -1,4 +1,4 @@
-.PHONY: up down logs migrate seed-vault fetch-issues fetch-docs build-dataset ingest-rag ingest-rag-db train-classifier eval-classifier eval-rag model-server test-model-server test
+.PHONY: up down logs migrate seed-vault seed-admin fetch-issues fetch-docs build-dataset ingest-rag ingest-rag-db train-classifier eval-classifier eval-rag model-server streamlit widget-dev host chat-test test-model-server test
 
 OWNER ?= psf
 REPO ?= requests
@@ -19,6 +19,9 @@ migrate:
 
 seed-vault:
 	$(PYTHON) scripts/seed_vault.py
+
+seed-admin:
+	$(PYTHON) scripts/seed_admin.py
 
 fetch-issues:
 	$(PYTHON) scripts/fetch_issues.py --owner $(OWNER) --repo $(REPO) --output data/raw/issues.jsonl
@@ -46,6 +49,18 @@ eval-rag:
 
 model-server:
 	uvicorn model_server.main:app --host 0.0.0.0 --port 8001
+
+streamlit:
+	streamlit run frontend/streamlit/app.py
+
+widget-dev:
+	cd frontend/widget && npm install && npm run dev -- --host 0.0.0.0
+
+host:
+	$(PYTHON) -m http.server 8080 --directory frontend/host
+
+chat-test:
+	curl -X POST http://localhost:8000/chat -H "Content-Type: application/json" -H "Authorization: Bearer $$TOKEN" -d '{"message":"search docs for auth","issue":{"title":"auth bug","body":"JWT fails"}}'
 
 test-model-server:
 	$(PYTHON) -m pytest tests/test_model_server.py

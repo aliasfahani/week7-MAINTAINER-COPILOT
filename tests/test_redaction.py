@@ -7,3 +7,8 @@ def test_redacts_fake_tokens() -> None:
     assert "ghp_" not in redacted
     assert "sk-" not in redacted
     assert "[REDACTED]" in redacted
+
+
+def test_redacts_jwt_like_string() -> None:
+    redacted = redact_text("jwt eyJabc.def.ghi")
+    assert "eyJabc.def.ghi" not in redacted

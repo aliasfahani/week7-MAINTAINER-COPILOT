@@ -1,6 +1,6 @@
 import pytest
 
-from app.services.chat_service import handle_internal_chat_action
+from app.services.chat_service import handle_internal_chat_action, _execute_tool
 
 
 class FakeModelClient:
@@ -26,3 +26,9 @@ def test_chat_service_can_call_classifier_tool() -> None:
 def test_chat_service_rejects_unknown_day_2_action() -> None:
     with pytest.raises(ValueError):
         handle_internal_chat_action(action="unknown", client=FakeModelClient())
+
+
+def test_tool_failure_is_returned_not_raised() -> None:
+    result = _execute_tool({"name": "unknown", "arguments": {}}, user_id=1, db=None)
+    assert result["ok"] is False
+    assert "unknown tool" in result["error"]

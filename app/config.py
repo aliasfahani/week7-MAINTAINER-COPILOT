@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     rag_dense_weight: float = 0.6
     rag_sparse_weight: float = 0.4
 
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 1440
+    redis_ttl_seconds: int = 86400
+    widget_url: str = "http://localhost:5173"
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     @property

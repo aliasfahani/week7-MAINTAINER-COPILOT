@@ -5,7 +5,11 @@ from fastapi import FastAPI
 
 from app.config import get_settings
 from app.infra.vault import read_dev_secret
+from app.routes.auth import router as auth_router
+from app.routes.chat import router as chat_router
 from app.routes.health import router as health_router
+from app.routes.memory import router as memory_router
+from app.routes.widgets import router as widgets_router
 
 logger = logging.getLogger(__name__)
 
@@ -25,3 +29,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=get_settings().app_name, lifespan=lifespan)
 app.include_router(health_router)
+app.include_router(auth_router)
+app.include_router(chat_router)
+app.include_router(memory_router)
+app.include_router(widgets_router)
