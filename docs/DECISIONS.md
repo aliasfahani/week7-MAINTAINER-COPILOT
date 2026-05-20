@@ -21,3 +21,17 @@
 - Summarization approach: Day 2 uses simple extractive summarization by keeping the first few meaningful sentences and capping length.
 - API/model boundary: model inference lives in `model_server`; the main API calls it through `app/infra/model_client.py` and exposes service-level tool wrappers in `app/services/tool_service.py`.
 - Known limitation: `/classify` returns a controlled 503 until `artifacts/classifier/` contains a trained model.
+
+## Day 3
+
+- RAG corpus sources: repository documentation fetched from README/docs/examples/changelog files plus closed GitHub issues from `data/raw/issues.jsonl`.
+- Leakage policy: RAG uses closed issues for retrieval. Once the classifier dataset is generated for a chosen repo, we should avoid using classifier test issues as RAG eval ground truth where feasible.
+- Chunking strategy: docs split by markdown headings first and fall back to overlapping character windows for long sections. Issues keep title/body/resolution context together.
+- Embedding model choice: `sentence-transformers/all-MiniLM-L6-v2`, because it is small, common, and produces 384-dimensional embeddings suitable for pgvector. Day 3 defaults to the deterministic hash backend for tests/offline development; set `EMBEDDING_BACKEND=sentence-transformers` to use the real model.
+- Storage strategy: chunks are written to `data/processed/rag_chunks.jsonl` for debugging and can also be stored in Postgres using pgvector with `scripts/ingest_rag.py --store-db`.
+- Sparse retrieval: compact BM25-style scoring implemented in code, useful for exact terms like `auth.py`, `TypeError`, versions, and config keys.
+- Hybrid scoring: default weight is 0.6 dense and 0.4 sparse.
+- Metadata filtering: supports `source_type`, `repo`, `label`, and `issue_number`.
+- Reranking strategy: simple heuristic boost for exact query-term matches and title matches. This is intentionally explainable and can be replaced with a cross-encoder later.
+- Retrieved chunk snapshots: Day 3 saves local JSON snapshots under `artifacts/rag-snapshots/`; MinIO upload is still TODO.
+- Known limitation: full query rewriting is prompt-only for now, not wired to an LLM call.

@@ -1,1 +1,5 @@
-
+{"question":"How do I configure authentication tokens?","ideal_answer":"Use the authentication documentation or resolved auth issues.","ground_truth_chunk_ids":["docs-readme.md::s0w0"],"filters":{}}
+{"question":"Where is the changelog for breaking changes?","ideal_answer":"Check the changelog documentation.","ground_truth_chunk_ids":["docs-changelog.md::s0w0"],"filters":{"source_type":"docs"}}
+{"question":"Has a TypeError in auth.py been fixed before?","ideal_answer":"Search closed issues mentioning auth.py and TypeError.","ground_truth_chunk_ids":["issue_1::body"],"filters":{"source_type":"issue"}}
+{"question":"How should I install the package?","ideal_answer":"Use README or installation docs.","ground_truth_chunk_ids":["docs-readme.md::s0w0"],"filters":{"source_type":"docs"}}
+{"question":"Do resolved issues mention JWT invalid token failures?","ideal_answer":"Search closed issues for JWT invalid token failures.","ground_truth_chunk_ids":["issue_2::body"],"filters":{"source_type":"issue"}}

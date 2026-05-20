@@ -29,8 +29,41 @@ Current starter thresholds in `evals/eval_thresholds.yaml`:
 
 The eval fails clearly if the trained model artifact does not exist.
 
-Planned RAG metrics:
+RAG retrieval metrics:
 - hit@5
 - MRR@10
 
-RAG evals are still planned for a later day.
+RAG retrieval eval is now available.
+
+Golden set format in `data/golden/rag_golden.jsonl`:
+
+```json
+{
+  "question": "How do I configure authentication tokens?",
+  "ideal_answer": "Use the authentication documentation.",
+  "ground_truth_chunk_ids": ["docs-readme.md::s0w0"],
+  "filters": {}
+}
+```
+
+Run RAG eval:
+
+```bash
+python3 evals/rag_eval.py
+```
+
+Reported metrics:
+
+- hit@5
+- MRR@10
+
+Report path:
+
+`artifacts/reports/rag_eval_report.json`
+
+Current starter thresholds:
+
+- hit@5 >= 0.40
+- MRR@10 >= 0.20
+
+The eval requires `data/processed/rag_chunks.jsonl`, which is produced by `scripts/ingest_rag.py`.

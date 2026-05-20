@@ -2,5 +2,5 @@ classification:
   accuracy_min: 0.50
   macro_f1_min: 0.50
 rag:
-  hit_at_5_min: 0.0
-  mrr_at_10_min: 0.0
+  hit_at_5_min: 0.40
+  mrr_at_10_min: 0.20

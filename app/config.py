@@ -33,6 +33,12 @@ class Settings(BaseSettings):
     model_server_url: str = "http://model_server:8001"
     model_client_timeout_seconds: float = 10.0
 
+    embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
+    embedding_backend: str = "hash"
+    embedding_dimension: int = 384
+    rag_dense_weight: float = 0.6
+    rag_sparse_weight: float = 0.4
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     @property

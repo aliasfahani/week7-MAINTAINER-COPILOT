@@ -38,6 +38,27 @@ Still not implemented:
 - Streamlit UI
 - React widget behavior
 
+## Day 3 Status
+
+Implemented:
+- GitHub documentation fetch script
+- RAG corpus builder from docs and closed issues
+- structure-aware chunking
+- embedding helper with SentenceTransformers and deterministic fallback
+- local JSONL chunk store plus optional Postgres/pgvector storage
+- dense retrieval
+- sparse BM25-style retrieval
+- hybrid retrieval with simple reranking
+- metadata filters
+- `rag_search_tool`
+- local retrieved chunk snapshots
+- starter RAG golden set and retrieval eval
+
+Still not implemented:
+- LLM-powered query rewrite
+- MinIO upload for snapshots
+- full chatbot use of `rag_search_tool`
+
 ## Quickstart
 
 ```bash
@@ -78,3 +99,27 @@ curl -X POST http://localhost:8001/classify \
 ```
 
 Before training, `/classify` returns a controlled `503` explaining that the classifier artifact is missing.
+
+Fetch docs:
+
+```bash
+make fetch-docs OWNER=psf REPO=requests BRANCH=main
+```
+
+Build local RAG corpus and chunks:
+
+```bash
+make ingest-rag OWNER=psf REPO=requests
+```
+
+Store RAG chunks in Postgres/pgvector after services and migrations are running:
+
+```bash
+make ingest-rag-db OWNER=psf REPO=requests
+```
+
+Run RAG eval:
+
+```bash
+make eval-rag
+```
