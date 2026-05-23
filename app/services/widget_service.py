@@ -32,6 +32,13 @@ def get_public_widget_config(db: Session, widget_id: str, origin: str | None) ->
 
 
 def create_widget_config(db: Session, data: dict, created_by: int | None):
+    existing = get_widget(db, data["widget_id"])
+    if existing:
+        # Streamlit's demo form is often submitted more than once with the
+        # same widget_id. Treat that as an update so the admin page remains
+        # idempotent during demos instead of surfacing a database uniqueness
+        # error to a beginner-facing UI.
+        return update_widget(db, data["widget_id"], data)
     return create_widget(db, data, created_by)
 
 

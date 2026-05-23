@@ -69,6 +69,8 @@ def main() -> int:
     metrics = {
         "hit_at_5": hits / len(golden) if golden else 0.0,
         "mrr_at_10": sum(reciprocal_ranks) / len(reciprocal_ranks) if reciprocal_ranks else 0.0,
+        "num_examples": len(golden),
+        "failed_examples": [row for row in rows if not row["hit_at_5"]],
         "examples": rows,
     }
 

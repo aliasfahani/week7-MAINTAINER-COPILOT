@@ -20,7 +20,7 @@ Implemented:
 ## Day 2 Status
 
 Implemented:
-- DistilBERT fine-tuning script for issue classification
+- Colab-based DistilBERT fine-tuning workflow for issue classification
 - test-set evaluation script with accuracy, macro-F1, per-class F1, and confusion matrix
 - threshold-gated classification eval entry point
 - model server classifier inference path using `artifacts/classifier/` when available
@@ -52,33 +52,54 @@ Implemented:
 - metadata filters
 - `rag_search_tool`
 - local retrieved chunk snapshots
-- starter RAG golden set and retrieval eval
+- pandas-aligned RAG golden set and retrieval eval
 
 Still not implemented:
 - LLM-powered query rewrite
 - MinIO upload for snapshots
-- full chatbot use of `rag_search_tool`
+- Postgres/pgvector storage verification when Docker is unavailable
 
 ## Quickstart
 
 ```bash
 cp .env.example .env
-make up
+make up-detached
 make seed-vault
 make migrate
+make seed-admin
 curl http://localhost:8000/health
 curl http://localhost:8001/health
 ```
 
-Fetch issues after choosing a repo:
+Use `make up` if you want foreground logs. Use `make down` to stop services.
+
+Fetch pandas issues and build the classifier dataset:
 
 ```bash
-make fetch-issues OWNER=owner REPO=repo
+make fetch-issues
 make build-dataset
-make train-classifier
 ```
 
-Evaluate classifier:
+The dataset comes from `pandas-dev/pandas` closed issues. The label mapping is:
+
+- GitHub `bug` -> assignment `bug`
+- GitHub `enhancement` -> assignment `feature`
+- GitHub `Docs` -> assignment `docs`
+- GitHub `Usage Question` -> assignment `question`
+
+Train the classifier in Google Colab:
+
+```text
+notebooks/pandas_issue_classifier_colab.ipynb
+```
+
+After Colab exports `classifier_artifact.zip`, unzip it so the files are directly inside:
+
+```text
+artifacts/classifier/
+```
+
+Then evaluate classifier locally:
 
 ```bash
 make eval-classifier
@@ -98,24 +119,24 @@ curl -X POST http://localhost:8001/classify \
   -d '{"title":"Login fails in production","body":"JWT token is invalid after deploy"}'
 ```
 
-Before training, `/classify` returns a controlled `503` explaining that the classifier artifact is missing.
+Before the Colab artifact is copied into `artifacts/classifier/`, `/classify` returns a controlled `503` explaining that the classifier artifact is missing.
 
 Fetch docs:
 
 ```bash
-make fetch-docs OWNER=psf REPO=requests BRANCH=main
+make fetch-docs
 ```
 
 Build local RAG corpus and chunks:
 
 ```bash
-make ingest-rag OWNER=psf REPO=requests
+make ingest-rag
 ```
 
 Store RAG chunks in Postgres/pgvector after services and migrations are running:
 
 ```bash
-make ingest-rag-db OWNER=psf REPO=requests
+make ingest-rag-db
 ```
 
 Run RAG eval:
@@ -172,3 +193,36 @@ curl -X POST http://localhost:8000/chat \
 ```
 
 Current limitation: the React widget UI can load config and send a request, but authenticated chat requires a JWT. A public widget chat proxy is a recommended Day 5 polish item.
+
+## Day 5 Status
+
+Polished:
+- smoke test script
+- practical CI checks
+- redaction tests
+- public widget chat endpoint with origin validation
+- README/runbook/demo/submission docs
+
+Run smoke test after the stack is up, Vault is seeded, migrations ran, and admin is seeded:
+
+```bash
+make smoke-test
+```
+
+Run all local checks:
+
+```bash
+python3 -m pytest
+docker compose config
+python3 -m compileall app model_server scripts evals tests
+```
+
+## Submission Docs
+
+- `docs/ARCH.md`
+- `docs/DECISIONS.md`
+- `docs/RUNBOOK.md`
+- `docs/EVALS.md`
+- `docs/SECURITY.md`
+- `docs/DEMO_SCRIPT.md`
+- `docs/SUBMISSION.md`

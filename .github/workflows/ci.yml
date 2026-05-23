@@ -12,5 +12,23 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - run: python -m pip install --upgrade pip
       - run: pip install -r requirements-dev.txt
+      - run: docker compose config
+      - run: python -m compileall app model_server scripts evals tests
       - run: pytest
+      - run: pytest tests/test_redaction.py
+      - name: Optional classifier eval
+        run: |
+          if [ -f artifacts/classifier/config.json ] && [ -f data/processed/test.jsonl ]; then
+            python evals/classification_eval.py
+          else
+            echo "Skipping classifier eval: trained artifact or test split is not committed."
+          fi
+      - name: Optional RAG eval
+        run: |
+          if [ -f data/processed/rag_chunks.jsonl ]; then
+            python evals/rag_eval.py
+          else
+            echo "Skipping RAG eval: rag_chunks.jsonl is generated data and is not committed."
+          fi

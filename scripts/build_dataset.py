@@ -33,7 +33,11 @@ def mapped_labels(labels: list[str], mapping: dict[str, str]) -> list[str]:
         normalized = label.lower().strip()
         if normalized in mapping:
             matches.append(mapping[normalized])
-    return sorted(set(matches))
+    # Keep assignment label order stable when an issue has multiple mapped
+    # labels. That makes repeated dataset builds deterministic and easier to
+    # explain than relying on alphabetical ordering.
+    unique = set(matches)
+    return [label for label in LABELS if label in unique]
 
 
 def split_time_ordered(rows: list[dict[str, Any]]) -> tuple[list, list, list]:
@@ -102,6 +106,8 @@ def main() -> int:
                 "closed_at": issue.get("closed_at"),
                 "html_url": issue.get("html_url"),
                 "sort_date": sort_date,
+                "source_repo": "pandas-dev/pandas",
+                "source_labels": issue.get("labels", []),
             }
         )
 

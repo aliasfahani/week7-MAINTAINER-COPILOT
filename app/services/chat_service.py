@@ -17,7 +17,7 @@ from app.services.tool_service import (
 
 
 def _execute_tool(call: dict[str, Any], user_id: int, db: Session) -> dict[str, Any]:
-    name = call["name"]
+    name = call.get("name", "unknown")
     args = call.get("arguments", {})
     try:
         if name == "classify_issue":
@@ -39,6 +39,34 @@ def _execute_tool(call: dict[str, Any], user_id: int, db: Session) -> dict[str, 
         return {"name": name, "ok": False, "error": redact_text(str(exc))}
 
 
+def _issue_text(issue: dict | None, fallback: str) -> str:
+    if not issue:
+        return fallback
+    title = issue.get("title", "")
+    body = issue.get("body", "")
+    combined = f"{title}\n\n{body}".strip()
+    return combined or fallback
+
+
+def _normalize_tool_call(call: dict[str, Any], issue: dict | None, message: str) -> dict[str, Any]:
+    """Make LLM/fallback tool arguments reliable for issue triage.
+
+    Gemini may correctly decide to call NER or summarization, but pass only the
+    user's instruction ("extract entities") instead of the actual issue body.
+    The tools are more useful when they operate on the issue text, so the chat
+    service repairs those arguments before execution.
+    """
+
+    name = call.get("name")
+    args = dict(call.get("arguments") or {})
+    issue_text = _issue_text(issue, message)
+    if name in {"extract_entities", "summarize_thread"}:
+        current_text = str(args.get("text", "")).strip()
+        if not current_text or current_text.lower() == message.lower() or len(current_text) < 40:
+            args["text"] = issue_text
+    return {**call, "arguments": args}
+
+
 def handle_chat(user, db: Session, message: str, conversation_id: str | None = None, issue: dict | None = None) -> dict:
     trace_id = new_trace_id()
     conversation_id = conversation_id or uuid.uuid4().hex
@@ -51,10 +79,11 @@ def handle_chat(user, db: Session, message: str, conversation_id: str | None = N
         tool_calls = plan_tool_calls(safe_message, issue_payload)
         tool_results = []
         for call in tool_calls:
+            call = _normalize_tool_call(call, issue_payload, safe_message)
             with trace_span(trace_id, "tool.call", tool=call["name"]):
                 tool_results.append(_execute_tool(call, user.id, db))
 
-        answer = synthesize_answer(safe_message, tool_results)
+        answer = synthesize_answer(safe_message, tool_results, issue_payload)
         if memories:
             answer += f"\n\nRelevant remembered context: {memories[0]['text']}"
 

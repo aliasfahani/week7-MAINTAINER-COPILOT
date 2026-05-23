@@ -38,7 +38,11 @@ def main() -> int:
     ]
     completed = subprocess.run(command, check=False)
     if completed.returncode != 0:
-        print("Classifier evaluation failed. Train the model before running CI evals.", file=sys.stderr)
+        print(
+            "Classifier evaluation failed. Run the Colab notebook and copy artifacts into "
+            "artifacts/classifier before running CI evals.",
+            file=sys.stderr,
+        )
         return completed.returncode
 
     metrics = json.loads(report_path.read_text(encoding="utf-8"))

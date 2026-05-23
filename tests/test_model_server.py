@@ -36,6 +36,18 @@ def test_model_server_ner_extracts_code_entities() -> None:
     assert {"text": "TypeError", "type": "error"} in entities
 
 
+def test_model_server_ner_extracts_pandas_parameters() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/ner",
+        json={"text": "Please add a clearer read_csv example showing parse_dates with multiple columns."},
+    )
+    assert response.status_code == 200
+    entities = response.json()["entities"]
+    assert any(item["text"].lower() == "parse_dates" for item in entities)
+    assert any(item["text"].lower() == "read_csv" for item in entities)
+
+
 def test_model_server_summarize_returns_summary_and_method() -> None:
     client = TestClient(app)
     response = client.post(
@@ -45,4 +57,20 @@ def test_model_server_summarize_returns_summary_and_method() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["summary"]
+    assert body["method"] == "simple_extractive"
+
+
+def test_model_server_summarize_long_text_uses_safe_fallback_by_default() -> None:
+    client = TestClient(app)
+    text = " ".join(
+        [
+            "I had to search through several examples before understanding the correct format.",
+            "It would be helpful to add a clearer example showing parse_dates with multiple columns.",
+        ]
+        * 8
+    )
+    response = client.post("/summarize", json={"text": text})
+    assert response.status_code == 200
+    body = response.json()
+    assert "parse_dates" in body["summary"]
     assert body["method"] == "simple_extractive"

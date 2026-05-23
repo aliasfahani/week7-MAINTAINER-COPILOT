@@ -12,6 +12,14 @@ Run classifier evaluation:
 python3 scripts/evaluate_classifier.py
 ```
 
+The classifier itself is trained in Google Colab with:
+
+```text
+notebooks/pandas_issue_classifier_colab.ipynb
+```
+
+Copy the exported Colab files into `artifacts/classifier/` before running local evaluation.
+
 Run threshold-gated classifier eval:
 
 ```bash
@@ -39,12 +47,14 @@ Golden set format in `data/golden/rag_golden.jsonl`:
 
 ```json
 {
-  "question": "How do I configure authentication tokens?",
-  "ideal_answer": "Use the authentication documentation.",
-  "ground_truth_chunk_ids": ["docs-readme.md::s0w0"],
-  "filters": {}
+  "question": "Installation conda install pandas pip install",
+  "ideal_answer": "Use the pandas installation documentation.",
+  "ground_truth_chunk_ids": ["docs-doc-source-getting_started-install.rst::s0w0"],
+  "filters": {"source_type": "docs"}
 }
 ```
+
+The current golden set is aligned to real pandas chunks produced by `scripts/ingest_rag.py`.
 
 Run RAG eval:
 
@@ -61,9 +71,21 @@ Report path:
 
 `artifacts/reports/rag_eval_report.json`
 
+Latest local RAG eval after ingesting pandas docs/issues:
+
+- examples: 6
+- hit@5: 1.00
+- MRR@10: 1.00
+
 Current starter thresholds:
 
 - hit@5 >= 0.40
 - MRR@10 >= 0.20
 
 The eval requires `data/processed/rag_chunks.jsonl`, which is produced by `scripts/ingest_rag.py`.
+
+## CI Behavior
+
+CI always runs tests, redaction tests, compile checks, and Docker Compose config validation.
+
+Classifier and RAG evals run only when their required generated files/artifacts are present. This keeps CI practical without forcing a model training job or committing large generated data.

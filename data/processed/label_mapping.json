@@ -1,11 +1,6 @@
 {
   "bug": "bug",
-  "type: bug": "bug",
   "enhancement": "feature",
-  "feature": "feature",
-  "feature request": "feature",
-  "documentation": "docs",
   "docs": "docs",
-  "question": "question",
-  "support": "question"
+  "usage question": "question"
 }

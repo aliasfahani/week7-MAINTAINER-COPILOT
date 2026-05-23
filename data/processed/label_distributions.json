@@ -1,0 +1,38 @@
+{
+  "all": {
+    "total": 1962,
+    "labels": {
+      "bug": 534,
+      "docs": 467,
+      "feature": 486,
+      "question": 475
+    }
+  },
+  "train": {
+    "total": 1373,
+    "labels": {
+      "bug": 519,
+      "docs": 280,
+      "feature": 444,
+      "question": 130
+    }
+  },
+  "val": {
+    "total": 294,
+    "labels": {
+      "bug": 6,
+      "docs": 71,
+      "feature": 7,
+      "question": 210
+    }
+  },
+  "test": {
+    "total": 295,
+    "labels": {
+      "bug": 9,
+      "docs": 116,
+      "feature": 35,
+      "question": 135
+    }
+  }
+}

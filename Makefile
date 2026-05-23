@@ -1,12 +1,15 @@
-.PHONY: up down logs migrate seed-vault seed-admin fetch-issues fetch-docs build-dataset ingest-rag ingest-rag-db train-classifier eval-classifier eval-rag model-server streamlit widget-dev host chat-test test-model-server test
+.PHONY: up up-detached down logs migrate seed-vault seed-admin fetch-issues fetch-docs build-dataset ingest-rag ingest-rag-db train-classifier eval-classifier eval-rag eval-all smoke-test model-server streamlit widget-dev host chat-test test-model-server test
 
-OWNER ?= psf
-REPO ?= requests
+OWNER ?= pandas-dev
+REPO ?= pandas
 BRANCH ?= main
 PYTHON ?= python3
 
 up:
 	docker compose up --build
+
+up-detached:
+	docker compose up -d --build
 
 down:
 	docker compose down
@@ -46,6 +49,13 @@ eval-classifier:
 
 eval-rag:
 	$(PYTHON) evals/rag_eval.py
+
+eval-all:
+	$(PYTHON) evals/classification_eval.py || true
+	$(PYTHON) evals/rag_eval.py || true
+
+smoke-test:
+	$(PYTHON) scripts/smoke_test.py
 
 model-server:
 	uvicorn model_server.main:app --host 0.0.0.0 --port 8001

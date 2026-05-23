@@ -33,6 +33,12 @@ class Settings(BaseSettings):
     model_server_url: str = "http://model_server:8001"
     model_client_timeout_seconds: float = 10.0
 
+    llm_provider: str = "fallback"
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"
+    gemini_api_url: str = "https://generativelanguage.googleapis.com/v1beta"
+    gemini_timeout_seconds: float = 30.0
+
     embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
     embedding_backend: str = "hash"
     embedding_dimension: int = 384

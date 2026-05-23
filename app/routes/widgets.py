@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
+from types import SimpleNamespace
+
+from fastapi import APIRouter, Depends, Header, HTTPException, Response
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.infra.db import get_db
 from app.routes.dependencies import require_admin
-from app.schemas import WidgetConfigIn, WidgetConfigPatch
+from app.schemas import ChatRequest, WidgetConfigIn, WidgetConfigPatch
+from app.services.chat_service import handle_chat
 from app.services.widget_service import (
     create_widget_config,
     get_public_widget_config,
@@ -26,6 +29,30 @@ def public_widget_config(
     if not config:
         raise HTTPException(status_code=403, detail="Widget origin is not allowed or widget does not exist")
     return config
+
+
+@router.post("/widgets/{widget_id}/chat")
+def public_widget_chat(
+    widget_id: str,
+    payload: ChatRequest,
+    db: Session = Depends(get_db),
+    origin: str | None = Header(default=None),
+    referer: str | None = Header(default=None),
+):
+    config = get_public_widget_config(db, widget_id, origin or referer)
+    if not config:
+        raise HTTPException(status_code=403, detail="Widget origin is not allowed or widget does not exist")
+    # Public widget chat uses a synthetic user id so it can demo RAG/classifier
+    # tools without exposing normal authenticated user memory. Long-term memory
+    # writes should be disabled for public widgets in production.
+    user = SimpleNamespace(id=0, email=f"widget:{widget_id}", role="user")
+    return handle_chat(
+        user=user,
+        db=db,
+        message=payload.message,
+        conversation_id=payload.conversation_id or f"widget-{widget_id}",
+        issue=payload.issue.model_dump() if payload.issue else None,
+    )
 
 
 @router.get("/widget.js")

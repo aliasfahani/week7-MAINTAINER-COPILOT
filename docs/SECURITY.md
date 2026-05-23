@@ -11,3 +11,10 @@ The API reads development secrets from Vault through `app/infra/vault.py`. If Va
 - Admin routes use an explicit role check.
 - Redaction removes common API keys, GitHub tokens, JWT-like strings, and password/token fields before logs or memory writes.
 - Widget config uses an allowed-origin list. The Day 4 check is intentionally simple and should be paired with production CORS/CSP settings later.
+
+## Day 5 Notes
+
+- `.env` is ignored; only safe placeholders belong in `.env.example`.
+- CI runs redaction tests.
+- Public widget chat validates widget origin before calling chat.
+- CORS is permissive for the local demo and should be narrowed before production.

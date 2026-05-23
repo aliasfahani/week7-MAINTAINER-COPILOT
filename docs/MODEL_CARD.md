@@ -6,7 +6,7 @@ Maintainer's Copilot issue classifier.
 
 ## Base Architecture
 
-`distilbert-base-uncased` by default.
+`distilbert-base-uncased`.
 
 ## Task
 
@@ -19,7 +19,7 @@ Classify GitHub issues into one of four maintainer triage labels:
 
 ## Dataset Source
 
-TBD. Day 1/Day 2 scripts support fetching closed GitHub issues from a selected repository with `scripts/fetch_issues.py`.
+Closed GitHub issues from `pandas-dev/pandas`.
 
 ## Split Policy
 
@@ -37,14 +37,21 @@ Editable mapping lives in `data/processed/label_mapping.json`.
 
 Starter examples:
 
-- `bug`, `type: bug` -> `bug`
-- `enhancement`, `feature`, `feature request` -> `feature`
-- `documentation`, `docs` -> `docs`
-- `question`, `support` -> `question`
+- pandas `bug` -> `bug`
+- pandas `enhancement` -> `feature`
+- pandas `Docs` -> `docs`
+- pandas `Usage Question` -> `question`
 
 ## Training Data Counts
 
-TBD until real issues are fetched and `scripts/build_dataset.py` is run.
+Current local pandas dataset from `scripts/fetch_issues.py --per-label-limit 500` and `scripts/build_dataset.py`:
+
+- all: 1,962 rows
+- train: 1,373 rows (`bug`: 519, `feature`: 444, `docs`: 280, `question`: 130)
+- validation: 294 rows (`bug`: 6, `feature`: 7, `docs`: 71, `question`: 210)
+- test: 295 rows (`bug`: 9, `feature`: 35, `docs`: 116, `question`: 135)
+
+The validation/test splits are newer than train, but label balance is uneven because pandas label usage changed over time.
 
 ## Hyperparameters
 
@@ -57,7 +64,7 @@ Default training settings:
 - learning rate: `2e-5`
 - weight decay: `0.01`
 
-These are intentionally lightweight for a laptop-friendly Week 7 workflow.
+These are intentionally lightweight for a Colab T4 GPU workflow.
 
 ## Validation Metrics
 
@@ -106,7 +113,7 @@ The classifier should not be treated as an authoritative moderation, security, o
 
 ## Known Limitations
 
-- No real model is trained until a repository is chosen and dataset splits are generated.
+- No real model is available locally until the Colab artifact is copied into `artifacts/classifier/`.
 - GitHub labels can be noisy or inconsistent.
 - Multi-label issues are collapsed into a single label for this classifier.
 - Small classes may produce weak per-class F1.
@@ -115,11 +122,15 @@ The classifier should not be treated as an authoritative moderation, security, o
 ## Reproduce Training
 
 ```bash
-python3 scripts/train_classifier.py \
-  --train-path data/processed/train.jsonl \
-  --val-path data/processed/val.jsonl \
-  --output-dir artifacts/classifier
+make fetch-issues
+make build-dataset
 ```
+
+Then open and run:
+
+`notebooks/pandas_issue_classifier_colab.ipynb`
+
+Copy the exported Colab files into `artifacts/classifier/`.
 
 ## Reproduce Evaluation
 

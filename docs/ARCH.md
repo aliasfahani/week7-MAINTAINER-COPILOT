@@ -21,7 +21,7 @@ scripts -> GitHub API -> data/raw -> data/processed
 
 Routes stay thin. Business logic belongs in services, database access in repositories, and external systems in `app/infra`.
 
-The model server is a separate FastAPI service. It exposes `/health` and Day 1 placeholder NLP endpoints for classification, NER, and summarization.
+The model server is a separate FastAPI service. It exposes `/health`, classifier inference when a trained artifact exists, rule-based NER, and simple extractive summarization.
 
 ## Day 4 Flow
 
@@ -42,3 +42,5 @@ Short-term conversation state is stored in Redis with a 24-hour TTL. If Redis is
 Long-term semantic memory is stored in Postgres and every memory write creates an audit log row.
 
 Widget configuration is stored in Postgres. Public widget config checks the request origin against the widget allowlist before returning safe fields.
+
+Day 5 adds a public widget chat endpoint that reuses the same chat service but validates widget origin first. It uses a synthetic widget user so public widget traffic does not access normal authenticated user memory.

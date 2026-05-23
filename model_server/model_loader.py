@@ -20,7 +20,7 @@ def validate_classifier_artifact(model_dir: Path = DEFAULT_MODEL_DIR) -> None:
     if missing:
         raise ModelArtifactMissingError(
             f"Classifier artifact is missing or incomplete at {model_dir}. Missing: {missing}. "
-            "Run scripts/train_classifier.py to create it."
+            "Run notebooks/pandas_issue_classifier_colab.ipynb and copy the exported files into artifacts/classifier."
         )
 
 

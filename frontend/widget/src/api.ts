@@ -9,11 +9,11 @@ export async function fetchConfig(widgetId: string): Promise<WidgetConfig> {
 }
 
 export async function sendChat(message: string, conversationId: string, widgetId: string) {
-  const response = await fetch(`${API_BASE_URL}/chat`, {
+  const response = await fetch(`${API_BASE_URL}/widgets/${widgetId}/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ conversation_id: conversationId, message: `${message}\n\nwidget:${widgetId}` })
   });
-  if (!response.ok) return { answer: "Chat requires login in the API right now.", tool_calls: [] };
+  if (!response.ok) return { answer: "Widget chat is unavailable. Check widget config and allowed origins.", tool_calls: [] };
   return response.json();
 }

@@ -6,7 +6,7 @@ from typing import Any
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from scripts.train_classifier import LABELS, LABEL_TO_ID, import_training_dependencies, issue_text, load_jsonl
+from scripts.classifier_common import LABELS, LABEL_TO_ID, import_inference_dependencies, issue_text, load_jsonl
 
 
 def parse_args() -> argparse.Namespace:
@@ -25,7 +25,7 @@ def validate_artifact(model_dir: Path) -> None:
     if missing:
         raise FileNotFoundError(
             f"Classifier artifact is incomplete at {model_dir}. Missing: {missing}. "
-            "Run scripts/train_classifier.py first."
+            "Run the Colab notebook and copy its exported files into artifacts/classifier first."
         )
 
 
@@ -54,7 +54,7 @@ def main() -> int:
     if not test_rows:
         raise ValueError(f"Test split is empty: {args.test_path}")
 
-    deps = import_training_dependencies()
+    deps = import_inference_dependencies()
     torch = deps["torch"]
     tokenizer = deps["AutoTokenizer"].from_pretrained(model_dir)
     model = deps["AutoModelForSequenceClassification"].from_pretrained(model_dir)
